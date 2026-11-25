@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fixture – ML Engineer at Example Co</title>
+<!-- Test page for the extension's page scripts. Open it in Chrome and run the functions from page-scripts.js. -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"JobPosting","title":"Machine Learning Engineer","hiringOrganization":{"@type":"Organization","name":"Example Co"},
+ "jobLocation":{"@type":"Place","address":{"addressLocality":"Amsterdam","addressCountry":"NL"}},"datePosted":"2026-11-12",
+ "description":"<p>Build ML systems in Python and PyTorch.</p><p>We sponsor highly skilled migrant visas.</p>"}
+</script>
+<style>body{font-family:system-ui;max-width:640px;margin:24px auto} label{display:block;margin-top:10px} input,textarea,select{width:100%;padding:6px}</style>
+</head>
+<body>
+<h1>Apply: Machine Learning Engineer</h1>
+<form id="f" onsubmit="event.preventDefault(); document.title='SUBMITTED'">
+  <label for="first_name">First Name *</label><input id="first_name" name="first_name" required>
+  <label for="last_name">Last Name *</label><input id="last_name" name="last_name" required>
+  <label for="email">Email *</label><input id="email" type="email" required>
+  <label for="phone">Phone</label><input id="phone">
+  <label>LinkedIn Profile <input name="urls[LinkedIn]"></label>
+  <label for="resume">Resume/CV *</label><input id="resume" type="file" required>
+  <label for="cl">Cover Letter</label><textarea id="cl"></textarea>
+  <label for="auth">Are you legally authorized to work in the Netherlands? *</label>
+  <select id="auth" required><option value="">Select…</option><option>Yes</option><option>No</option></select>
+  <label for="spons">Will you now or in the future require visa sponsorship? *</label>
+  <select id="spons" required><option value="">Select…</option><option>Yes</option><option>No</option></select>
+  <label for="why">Why do you want to join Example Co? *</label><textarea id="why" required></textarea>
+  <button type="submit">Submit application</button>
+</form>
+<script src="../page-scripts.js"></script>
+</body>
+</html>

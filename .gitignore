@@ -1,0 +1,23 @@
+# secrets — never commit
+.env
+.env.local
+.env*.local
+
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# local databases and uploads
+prisma/*.db
+prisma/*.db-journal
+data/uploads/
+data/sponsors/
+test-results/
+
+# apply engine browser profile, screenshots and test artefacts
+data/browser-profile/
+data/apply/
+data/test-engine/

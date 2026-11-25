@@ -1,0 +1,73 @@
+{
+  "name": "upvance",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/start.mjs dev",
+    "build": "prisma generate && next build",
+    "start": "node scripts/start.mjs start",
+    "web": "node scripts/start.mjs dev --no-worker",
+    "worker": "tsx scripts/worker.ts",
+    "setup": "node scripts/setup.mjs",
+    "db:push": "prisma db push",
+    "db:reset": "prisma db push --force-reset && npm run seed",
+    "seed": "tsx prisma/seed.ts",
+    "icons": "node scripts/generate-icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:smoke": "node scripts/smoke.mjs",
+    "demo:remove": "tsx scripts/remove-demo.ts",
+    "discover": "tsx scripts/discover.ts",
+    "engine:install": "playwright install chromium"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@radix-ui/react-slot": "^1.5.0",
+    "bcryptjs": "^3.0.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "diff": "^9.0.0",
+    "docx": "^9.15.3",
+    "exceljs": "^4.4.0",
+    "imapflow": "^2.11.0",
+    "lucide-react": "^1.72.0",
+    "mailparser": "^3.14.3",
+    "next": "^16.4.6",
+    "next-auth": "^5.0.0-beta.32",
+    "next-themes": "^0.4.6",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^8.0.11",
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.65.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.7.0",
+    "unpdf": "^2.1.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/mailparser": "^3.9.0",
+    "@types/node": "^26.6.6",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "postcss": "^8.5.32",
+    "prisma": "^6.19.3",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^5.1.0"
+  }
+}

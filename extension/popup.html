@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Upvance</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon-32.png" alt="" width="24" height="24">
+    <strong>Upvance</strong>
+    <span id="conn" class="pill">…</span>
+    <a href="options.html" target="_blank" class="link" title="Options">⚙</a>
+  </header>
+
+  <section id="notice" class="notice hidden"></section>
+
+  <section class="card">
+    <h2>This job</h2>
+    <p class="muted">Reads the job you're viewing and checks your match. Nothing is applied to.</p>
+    <button id="analyse" class="primary">Analyse this job</button>
+    <div id="result" class="hidden"></div>
+  </section>
+
+  <section class="card">
+    <h2>Assisted apply</h2>
+    <p class="muted">Fills this employer form from your approved package. You check it and click Submit yourself.</p>
+    <select id="readyList"><option value="">Match this page automatically</option></select>
+    <button id="fill">Fill this form</button>
+    <div id="fillResult" class="hidden"></div>
+    <button id="submitted" class="ghost hidden">I submitted this application</button>
+  </section>
+
+  <section class="card">
+    <h2>Recruiter</h2>
+    <p class="muted">On a recruiter's profile: capture their visible name/title and draft a message for you to send yourself.</p>
+    <button id="recruiter">Capture recruiter & draft message</button>
+    <div id="recruiterResult" class="hidden"></div>
+  </section>
+
+  <script src="shared.js"></script>
+  <script src="page-scripts.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

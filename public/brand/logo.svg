@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" role="img" aria-label="Upvance">
+  <defs>
+    <linearGradient id="upv-lg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="upv-tg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6D28D9"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#upv-lg)"/>
+  <path d="M13 37 L23 27" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+  <path d="M27 51 L37 41" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+  <path d="M19 45 L45 19" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <path d="M28 18.5 H45.5 V36" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="80" y="44" font-family="Inter, 'Segoe UI', system-ui, -apple-system, sans-serif" font-size="36" font-weight="800" letter-spacing="-1" fill="url(#upv-tg)">Upvance</text>
+</svg>

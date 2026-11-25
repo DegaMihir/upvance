@@ -1,0 +1,651 @@
+// Upvance database schema.
+// SQLite for local development. To switch to PostgreSQL later, change
+// `provider` to "postgresql" and DATABASE_URL in .env, then run `npx prisma db push`.
+// Lists/objects are stored as JSON text (portable across SQLite and PostgreSQL).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  timezone     String   @default("UTC")
+  createdAt    DateTime @default(now())
+
+  settings      UserSettings?
+  profiles      Profile[]
+  matches       Match[]
+  applications  Application[]
+  resumes       TailoredResume[]
+  savedSearches SavedSearch[]
+  recruiters    Recruiter[]
+  outreach      Outreach[]
+  pauses        CompanyPause[]
+  activity      ActivityLog[]
+  followed      FollowedCompany[]
+  suggestions   Suggestion[]
+  applyJobs     ApplyJob[]
+  mailboxes     Mailbox[]
+  emails        Email[]
+  notifications Notification[]
+  assistantMessages AssistantMessage[]
+  assistantChanges  AssistantChange[]
+}
+
+model UserSettings {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetCountries          String  @default("[]") // in priority order
+  setupCompletedAt         DateTime? // when you finished the first-time setup
+  tier1Count               Int     @default(0) // how many of targetCountries are Tier 1 (0 = one tier)
+  targetTitles             String  @default("[]")
+  targetSkills             String  @default("[]")
+  minExperience            Int     @default(0)
+  maxExperience            Int     @default(30)
+  minSalary                Int?
+  salaryCurrency           String  @default("USD")
+  remotePayParity          Boolean @default(true) // remote jobs must pay the on-site rate
+  sponsorshipRequired      Boolean @default(false)
+  strictSponsorship        Boolean @default(false)
+  remotePreference         String  @default("any") // any | remote | hybrid | onsite
+  relocationOk             Boolean @default(true)
+  employmentTypes          String  @default("[\"full-time\"]")
+  excludedCompanies        String  @default("[]")
+  dailyCap                 Int     @default(10)
+  minMatchBand             String  @default("Good")
+  resumeMode               String  @default("honest") // off | honest | aggressive
+  resumeApproval           Boolean @default(true)
+  coverLetterApproval      Boolean @default(true)
+  reviewBeforeSubmit       Boolean @default(true)
+  perCompanyLimit          Int     @default(3)
+  blockSameCompanyPending  Boolean @default(false)
+  interviewPauseDays       Int     @default(60)
+  autoModeEnabled          Boolean @default(false)
+  extensionPrepareOnOpen   Boolean @default(false)
+  analysisProvider         String?
+  writingProvider          String?
+  scoringWeights           String  @default("{}")
+  encryptedAppPassword     String?
+  encryptedProviderKeys    String  @default("{}")
+  extensionTokenHash       String?
+  extensionTokenCreatedAt  DateTime?
+  outreachFollowUpDays     Int     @default(7)
+  // Phase 4
+  showDemoData             Boolean @default(false)
+  applyDailyCap            Int     @default(25)
+  applicationEmail         String  @default("")
+  engineHeadless           Boolean @default(false)
+  humanDelayMs             Int     @default(900)
+  sensitiveDefaults        String  @default("{}")
+  defaultSubmitPolicy      String  @default("review") // review | auto
+  notifyDesktop            Boolean @default(true)
+  digestEnabled            Boolean @default(false)
+  digestEmailTo            String  @default("")
+  lastDigestAt             DateTime?
+  discoveryEnabled         Boolean @default(true)
+  updatedAt                DateTime @updatedAt
+}
+
+model Profile {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String   @default("Main resume")
+  isDefault           Boolean  @default(false)
+  fullName            String   @default("")
+  email               String   @default("")
+  phone               String   @default("")
+  location            String   @default("")
+  linkedin            String   @default("")
+  website             String   @default("")
+  headline            String   @default("")
+  summary             String   @default("")
+  skills              String   @default("[]")
+  experiences         String   @default("[]")
+  education           String   @default("[]")
+  certifications      String   @default("[]")
+  projects            String   @default("[]")
+  citizenship         String   @default("")
+  currentCountry      String   @default("")
+  workAuthorizations  String   @default("[]")
+  needsSponsorship    Boolean  @default(true)
+  willingToRelocate   Boolean  @default(true)
+  relocationCountries String   @default("[]")
+  salaryExpectation   Int?
+  salaryCurrency      String   @default("USD")
+  noticePeriod        String   @default("")
+  yearsExperience     Float?
+  resumeText          String   @default("")
+  resumeFileName      String?
+  resumeFilePath      String?
+  parsedBy            String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  applications  Application[]
+  resumes       TailoredResume[]
+  savedSearches SavedSearch[]
+}
+
+model Company {
+  id             String   @id @default(cuid())
+  name           String
+  normalizedName String   @unique
+  atsType        String?
+  boardSlug      String?
+  website        String?
+  size           String?
+  industry       String?
+  headquarters   String?
+  facts          String   @default("[]") // [{key,value,source,confidence,url?}]
+  isDemo         Boolean  @default(false)
+  careersUrl     String?
+  discoveryConfidence String?
+  priority       Int      @default(0)
+  lastFetchedAt  DateTime?
+  createdAt      DateTime @default(now())
+
+  jobs     Job[]
+  pauses   CompanyPause[]
+  followed FollowedCompany[]
+}
+
+model FollowedCompany {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, companyId])
+}
+
+model Job {
+  id                  String    @id @default(cuid())
+  companyId           String
+  company             Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  source              String // greenhouse | lever | ashby | remotive | remoteok | arbeitnow | adzuna | url | extension | demo | manual
+  externalId          String
+  title               String
+  location            String    @default("")
+  description         String    @default("")
+  applyUrl            String    @default("")
+  sourceUrl           String    @default("")
+  canonicalUrl        String    @default("")
+  fingerprint         String    @default("")
+  atsType             String    @default("unknown")
+  postedAt            DateTime?
+  salaryMin           Int?
+  salaryMax           Int?
+  salaryCurrency      String?
+  employmentType      String?
+  seniority           String?
+  sponsorshipCategory String    @default("Unknown")
+  remoteCategory      String    @default("Unknown")
+  remoteCountries     String    @default("[]")
+  analysis            String    @default("{}")
+  analysisSource      String    @default("rules")
+  analyzedAt          DateTime?
+  coverLetterPolicy   String    @default("unknown") // required | optional | none | unknown
+  isActive            Boolean   @default(true)
+  duplicateOfId       String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  matches      Match[]
+  applications Application[]
+  resumes      TailoredResume[]
+  outreach     Outreach[]
+  applyJobs    ApplyJob[]
+
+  @@unique([source, externalId])
+  @@index([canonicalUrl])
+  @@index([fingerprint])
+}
+
+model Match {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId            String
+  job              Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  profileId        String?
+  score            Int
+  band             String
+  breakdown        String   @default("{}")
+  eligible         Boolean  @default(true)
+  eligibility      String   @default("Eligible") // Eligible | Ineligible | Needs review
+  reasons          String   @default("[]") // ineligibility / review reasons
+  whyMatch         String   @default("[]")
+  whyNot           String   @default("[]")
+  missingSkills    String   @default("[]")
+  status           String   @default("new") // new | saved | skipped
+  skipReason       String?
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, jobId])
+}
+
+model TailoredResume {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  mode      String
+  original  String // JSON resume document
+  tailored  String // JSON resume document
+  changes   String   @default("[]")
+  guardLog  String   @default("[]") // edits the fabrication guard reverted
+  status    String   @default("draft") // draft | approved | use-original
+  generator String   @default("rules")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+  outreach     Outreach[]
+
+  @@unique([userId, jobId, profileId])
+}
+
+model Application {
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId              String
+  job                Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  profileId          String
+  profile            Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  tailoredResumeId   String?
+  tailoredResume     TailoredResume? @relation(fields: [tailoredResumeId], references: [id], onDelete: SetNull)
+  status             String    @default("Saved")
+  origin             String    @default("manual") // manual | auto | extension
+  savedSearchId      String?
+  savedSearch        SavedSearch? @relation(fields: [savedSearchId], references: [id], onDelete: SetNull)
+  coverLetter        String?
+  coverLetterNeeded  Boolean   @default(false)
+  coverLetterStatus  String    @default("draft") // draft | approved | not-needed
+  screeningAnswers   String    @default("[]")
+  validation         String    @default("[]")
+  needsYou           String    @default("[]")
+  queue              String?   // "assisted" when ready for assisted apply
+  failed             Boolean   @default(false)
+  failureReason      String?
+  submittedAt        DateTime?
+  result             String?
+  notes              String    @default("")
+  latestResponse     String?
+  responseDate       DateTime?
+  responseEdited     Boolean   @default(false)
+  confirmedAt        DateTime?
+  confirmationSource String?
+  contactName        String?   // recruiter / hiring contact typed in the sheet (overrides found ones)
+  contactEmail       String?
+  contactUrl         String?   // LinkedIn or other profile link
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  events    ApplicationEvent[]
+  applyJobs ApplyJob[]
+  emails    Email[]
+
+  @@index([userId, createdAt])
+}
+
+model ApplicationEvent {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type          String
+  message       String
+  createdAt     DateTime    @default(now())
+}
+
+model CompanyPause {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  until     DateTime
+  reason    String   @default("Interview recorded")
+  createdAt DateTime @default(now())
+}
+
+model SavedSearch {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  enabled           Boolean  @default(true)
+  includeKeywords   String   @default("[]")
+  excludeKeywords   String   @default("[]")
+  locations         String   @default("[]")
+  remotePreference  String   @default("any")
+  jobTypes          String   @default("[]")
+  companyInclude    String   @default("[]")
+  companyExclude    String   @default("[]")
+  experienceLevel   String   @default("any")
+  sponsorshipNeeded Boolean  @default(false)
+  minBand           String   @default("Good") // Excellent | Strong | Good | Stretch
+  profileId         String?
+  profile           Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  runsPerDay        Int      @default(1)
+  reviewRequired    Boolean  @default(true)
+  autoApply         Boolean  @default(false)
+  filters           String   @default("{}")
+  checkIntervalMin  Int      @default(60)
+  submitPolicy      String   @default("review")
+  lastCheckedAt     DateTime?
+  lastRunAt         DateTime?
+  createdAt         DateTime @default(now())
+
+  runs         AutoRun[]
+  applications Application[]
+  applyJobs    ApplyJob[]
+}
+
+model AutoRun {
+  id            String      @id @default(cuid())
+  savedSearchId String
+  savedSearch   SavedSearch @relation(fields: [savedSearchId], references: [id], onDelete: Cascade)
+  slot          String      // e.g. "2026-11-14#2" – prevents double runs
+  trigger       String      @default("schedule")
+  startedAt     DateTime    @default(now())
+  finishedAt    DateTime?
+  discovered    Int         @default(0)
+  filtered      Int         @default(0)
+  scored        Int         @default(0)
+  queued        Int         @default(0)
+  skipped       Int         @default(0)
+  stoppedReason String?
+  log           String      @default("[]")
+
+  @@unique([savedSearchId, slot])
+}
+
+model Recruiter {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  title      String   @default("")
+  company    String   @default("")
+  profileUrl String   @default("")
+  createdAt  DateTime @default(now())
+
+  outreach Outreach[]
+}
+
+model Outreach {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recruiterId      String
+  recruiter        Recruiter @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  jobId            String?
+  job              Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  jobKey           String    @default("none") // jobId or "none" – used for uniqueness
+  role             String    @default("")
+  message          String
+  tailoredResumeId String?
+  tailoredResume   TailoredResume? @relation(fields: [tailoredResumeId], references: [id], onDelete: SetNull)
+  status           String    @default("Draft") // Draft | Sent | Responded | No response
+  sentAt           DateTime?
+  response         String?
+  responseAt       DateTime?
+  followUpAt       DateTime?
+  followUps        Int       @default(0)
+  createdAt        DateTime  @default(now())
+
+  @@unique([recruiterId, jobKey])
+}
+
+model SponsorList {
+  id          String    @id // UK | US | NL | CA
+  name        String
+  sourceUrl   String
+  lastUpdated DateTime?
+  recordCount Int       @default(0)
+  status      String    @default("never") // never | ok | error | demo
+  message     String?
+}
+
+model SponsorRecord {
+  id             String  @id @default(cuid())
+  listId         String
+  name           String
+  normalizedName String
+  city           String  @default("")
+  route          String  @default("")
+  extra          String  @default("")
+
+  @@index([normalizedName])
+  @@index([listId])
+}
+
+model AiCache {
+  key       String   @id
+  role      String
+  provider  String
+  result    String
+  createdAt DateTime @default(now())
+}
+
+model AiUsage {
+  id           String @id @default(cuid())
+  day          String
+  provider     String
+  role         String
+  requests     Int    @default(0)
+  failures     Int    @default(0)
+  inputTokens  Int    @default(0)
+  outputTokens Int    @default(0)
+  estCostUsd   Float  @default(0)
+
+  @@unique([day, provider, role])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  kind        String
+  payload     String   @default("{}")
+  status      String   @default("pending") // pending | running | done | failed | paused
+  attempts    Int      @default(0)
+  runAfter    DateTime @default(now())
+  lastError   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, runAfter])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   String   @default("")
+  automatic Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Suggestion {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String   // search | weights | skill | profile
+  title     String
+  detail    String
+  payload   String   @default("{}")
+  status    String   @default("open") // open | applied | dismissed
+  createdAt DateTime @default(now())
+}
+
+model SystemState {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------- Phase 4 ----------------
+
+/** Company directory seeded from official sponsor lists + companies the user adds. */
+model DirectoryCompany {
+  id             String    @id @default(cuid())
+  name           String
+  normalizedName String    @unique
+  countries      String    @default("[]")
+  sources        String    @default("[]")
+  website        String?
+  careersUrl     String?
+  atsType        String?
+  boardSlug      String?
+  confidence     String?   // high | medium | low
+  status         String    @default("pending") // pending | found | not-found | error
+  priority       Int       @default(0)
+  attempts       Int       @default(0)
+  jobCount       Int?
+  notes          String?
+  companyId      String?
+  lastCheckedAt  DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([status, priority])
+}
+
+/** One automatic application in the apply queue. */
+model ApplyJob {
+  id               String       @id @default(cuid())
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId            String
+  job              Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicationId    String?
+  application      Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  savedSearchId    String?
+  savedSearch      SavedSearch? @relation(fields: [savedSearchId], references: [id], onDelete: SetNull)
+  source           String       @default("apply-all") // apply-all | watch | manual
+  status           String       @default("queued") // queued | running | review | approved | awaiting-confirmation | submitted | failed | skipped | paused | needs-you | stopped
+  score            Int          @default(0)
+  priority         Float        @default(1000) // country priority: 0 = your first country
+  policy           String       @default("review") // review | auto
+  reason           String?
+  attempts         Int          @default(0)
+  log              String       @default("[]")
+  filledValues     String       @default("[]")
+  pendingQuestions String       @default("[]")
+  screenshotPath   String?
+  confirmationPath String?
+  notBefore        DateTime     @default(now())
+  startedAt        DateTime?
+  finishedAt       DateTime?
+  submittedAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([userId, jobId])
+  @@index([status, score])
+}
+
+model Mailbox {
+  id                String    @id @default(cuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind              String    @default("imap") // imap | gmail
+  email             String
+  imapHost          String    @default("")
+  imapPort          Int       @default(993)
+  imapSecure        Boolean   @default(true)
+  smtpHost          String    @default("")
+  smtpPort          Int       @default(465)
+  smtpSecure        Boolean   @default(true)
+  username          String    @default("")
+  encryptedPassword String?
+  encryptedTokens   String?
+  status            String    @default("new") // new | ok | error
+  lastError         String?
+  lastSyncAt        DateTime?
+  lastUid           Int?
+  uidValidity       String?
+  createdAt         DateTime  @default(now())
+
+  emails Email[]
+}
+
+model Email {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mailboxId     String?
+  mailbox       Mailbox?     @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  messageId     String
+  uid           Int?
+  fromAddress   String       @default("")
+  fromName      String       @default("")
+  toAddress     String       @default("")
+  subject       String       @default("")
+  snippet       String       @default("")
+  bodyText      String       @default("")
+  date          DateTime     @default(now())
+  category      String       @default("Other")
+  classifiedBy  String       @default("rules")
+  read          Boolean      @default(false)
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  companyName   String?
+  codes         String       @default("[]")
+  links         String       @default("[]")
+  direction     String       @default("in") // in | out
+  status        String       @default("received") // received | draft | sent
+  inReplyTo     String?
+  createdAt     DateTime     @default(now())
+
+  @@unique([userId, messageId])
+  @@index([userId, category])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  title     String
+  body      String    @default("")
+  href      String    @default("")
+  read      Boolean   @default(false)
+  shownAt   DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model AssistantMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  actions   String   @default("[]")
+  createdAt DateTime @default(now())
+}
+
+model AssistantChange {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  description String
+  undo        String   @default("{}")
+  undone      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

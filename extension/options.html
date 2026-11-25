@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Upvance – Options</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>body { width: auto; max-width: 560px; margin: 24px auto; } label { display: block; margin-top: 12px; font-weight: 600; } input { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font: inherit; margin-top: 4px; }</style>
+</head>
+<body>
+  <header><img src="icons/icon-32.png" alt="" width="24" height="24"><strong>Upvance Assistant – Options</strong></header>
+  <section class="card">
+    <label for="appUrl">App URL</label>
+    <input id="appUrl" placeholder="http://localhost:3100">
+    <p class="muted">Where your Upvance app runs. Default http://localhost:3100 (matches PORT in .env).</p>
+    <label for="token">Pairing token</label>
+    <input id="token" type="password" placeholder="upv_…" autocomplete="off">
+    <p class="muted">Create one in Upvance → Settings → Chrome extension pairing. It's stored only in this browser.</p>
+    <button id="save" class="primary">Save & test connection</button>
+    <div id="status" class="result"></div>
+  </section>
+  <section class="card">
+    <h2>What this extension does</h2>
+    <ul class="muted">
+      <li>Only acts when you click a button in its popup.</li>
+      <li>Reads the job or profile you are viewing and sends it to your local app.</li>
+      <li>Fills employer forms from the package you approved – never clicks Submit.</li>
+      <li>Never logs in to sites, never sends messages, doesn't support LinkedIn Easy Apply.</li>
+    </ul>
+  </section>
+  <script src="shared.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

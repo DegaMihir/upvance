@@ -1,0 +1,27 @@
+:root { color-scheme: light dark; --v: #7c3aed; --b: #2563eb; --bg: #fff; --fg: #1e1b2e; --muted: #6b6880; --border: #e4e2ee; --card: #faf9fe; }
+@media (prefers-color-scheme: dark) { :root { --bg: #13111c; --fg: #eeeaf8; --muted: #a29fb5; --border: #2c2940; --card: #1b1828; } }
+* { box-sizing: border-box; }
+body { width: 360px; margin: 0; font: 13px/1.45 "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+header strong { background: linear-gradient(90deg, var(--v), var(--b)); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 15px; }
+.pill { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--card); border: 1px solid var(--border); }
+.pill.ok { color: #059669; } .pill.bad { color: #dc2626; }
+.link { text-decoration: none; color: var(--muted); font-size: 15px; }
+.card { margin: 10px 12px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
+h2 { margin: 0 0 2px; font-size: 13px; }
+.muted { color: var(--muted); margin: 0 0 8px; font-size: 12px; }
+button, select { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font: inherit; cursor: pointer; margin-top: 4px; }
+button.primary { border: 0; color: #fff; background: linear-gradient(135deg, var(--v), var(--b)); font-weight: 600; }
+button.ghost { background: transparent; }
+button:disabled { opacity: .6; cursor: wait; }
+.hidden { display: none !important; }
+.notice { margin: 10px 12px 0; padding: 8px 10px; border-radius: 8px; font-size: 12px; background: #fef3c7; color: #78350f; }
+.result { margin-top: 8px; font-size: 12px; }
+.score { font-size: 22px; font-weight: 700; }
+.badge { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 11px; margin: 2px 2px 0 0; background: var(--bg); border: 1px solid var(--border); }
+.badge.good { color: #059669; } .badge.bad { color: #dc2626; } .badge.warn { color: #b45309; }
+ul { margin: 4px 0; padding-left: 16px; }
+textarea { width: 100%; min-height: 120px; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font: inherit; padding: 6px; }
+.error { color: #dc2626; font-size: 12px; margin-top: 6px; }
+.ok { color: #059669; }
+a.open { color: var(--v); }
